@@ -2,7 +2,7 @@
 
 电子系统设计课程设计配套应用程序，小车的蓝牙遥控器。
 
-![Screenshot_20210915_190846_top.gtf35.bleserial](.\Screenshot_20210915_190846_top.gtf35.bleserial.jpg)
+![Screenshot_20210915_190846_top.gtf35.bleserial](./Screenshot_20210915_190846_top.gtf35.bleserial.jpg)
 
 + 使用：按住按钮维持运动状态，松开按钮停车，由于小车程序设置，底下三个按钮按下后只生效一次。
 
