@@ -5,9 +5,10 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -22,7 +23,7 @@ import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements BLESPPUtils.OnBluetoothAction, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements BLESPPUtils.OnBluetoothAction ,View.OnTouchListener{
     // 蓝牙工具
     private BLESPPUtils mBLESPPUtils;
     // 保存搜索到的设备，避免重复
@@ -31,8 +32,16 @@ public class MainActivity extends AppCompatActivity implements BLESPPUtils.OnBlu
     private DeviceDialogCtrl mDeviceDialogCtrl;
     // log 视图
     private TextView mLogTv;
-    // 输入的 ET
-    private EditText mInputET;
+
+    private final byte[] stop = {(byte) 0xFA, 0x00};
+    private final byte[] forward = {(byte) 0xFA, 0x01};
+    private final byte[] turnLeft = {(byte) 0xFA, 0x02};
+    private final byte[] turnRight = {(byte) 0xFA, 0x03};
+    private final byte[] backward = {(byte) 0xFA, 0x04};
+    private final byte[] beep = {(byte) 0xFA, 0x05};
+    private final byte[] switchModes = {(byte) 0xFA, 0x06};
+    private final byte[] lock = {(byte) 0xFA, 0x07};
+    private final byte[] speedLevel = {(byte) 0xFA, 0x08};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +50,16 @@ public class MainActivity extends AppCompatActivity implements BLESPPUtils.OnBlu
         // 申请权限
         initPermissions();
         // 绑定视图
-        findViewById(R.id.btn_send).setOnClickListener(this);
+        findViewById(R.id.btn_fwd).setOnTouchListener(this);
+        findViewById(R.id.btn_left).setOnTouchListener(this);
+        findViewById(R.id.btn_right).setOnTouchListener(this);
+        findViewById(R.id.btn_bwd).setOnTouchListener(this);
+        findViewById(R.id.btn_beep).setOnTouchListener(this);
+        findViewById(R.id.btn_modes).setOnTouchListener(this);
+        findViewById(R.id.btn_lock).setOnTouchListener(this);
+        findViewById(R.id.btn_spdcon).setOnTouchListener(this);
         mLogTv = findViewById(R.id.tv_log);
-        mInputET = findViewById(R.id.ed_input);
+        mLogTv.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         // 初始化
         mBLESPPUtils = new BLESPPUtils(this, this);
@@ -183,15 +199,45 @@ public class MainActivity extends AppCompatActivity implements BLESPPUtils.OnBlu
     public void onFinishFoundDevice() { }
 
     /**
-     * 按钮的点击事件
      *
-     * @param v 点击的按钮
+     * @param v 发生动作的按键
+     * @param event 监听到的动作
+     * @return false
      */
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.btn_send) {
-            mBLESPPUtils.send((mInputET.getText().toString() + "\n").getBytes());
+    public boolean onTouch(View v, MotionEvent event)
+    {
+        int action = event.getAction();
+        if(action == MotionEvent.ACTION_UP)
+        {
+            mBLESPPUtils.send(stop);
+        } else if(action == MotionEvent.ACTION_DOWN)
+        {
+            if (v.getId() == R.id.btn_fwd) {
+                mBLESPPUtils.send(forward);
+            }
+            else if (v.getId() == R.id.btn_left) {
+                mBLESPPUtils.send(turnLeft);
+            }
+            else if (v.getId() == R.id.btn_right) {
+                mBLESPPUtils.send(turnRight);
+            }
+            else if (v.getId() == R.id.btn_bwd) {
+                mBLESPPUtils.send(backward);
+            }
+            else if (v.getId() == R.id.btn_beep) {
+                mBLESPPUtils.send(beep);
+            }
+            else if (v.getId() == R.id.btn_modes) {
+                mBLESPPUtils.send(switchModes);
+            }
+            else if (v.getId() == R.id.btn_lock) {
+                mBLESPPUtils.send(lock);
+            }
+            else if (v.getId() == R.id.btn_spdcon) {
+                mBLESPPUtils.send(speedLevel);
+            }
         }
+        return false;
     }
 
     /**
